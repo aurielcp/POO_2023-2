@@ -3,8 +3,10 @@ package org.example.persistencia;
 import org.example.modelo.Libro;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class DemoLibroDB {
 
@@ -56,6 +58,33 @@ public class DemoLibroDB {
     }
 
     public Libro buscarLibroPorId(int id){
-        
+        String sql = "SELECT * FROM libros WHERE id = ? ;";
+        Libro libro = null;
+        try {
+            PreparedStatement pstm = ConexionSingleton.getInstance("librosDB.db").getConnection().prepareStatement(sql);
+            pstm.setInt(1, id);
+            ResultSet rst = pstm.executeQuery();
+            if(rst.next()){
+                libro = new Libro(rst.getInt(1), rst.getString(2), rst.getString(3));
+            }
+        }catch (SQLException sqle){
+            System.out.println("Erorr al buscar");
+        }
+        return libro;
+    }
+
+    public ArrayList<Libro> obtenerTodos(){
+        String sql = "SELECT * FROM libros";
+        ArrayList<Libro> resultado = new ArrayList<>();
+        try{
+            Statement stm = ConexionSingleton.getInstance("librosDB.db").getConnection().createStatement();
+            ResultSet rst = stm.executeQuery(sql);
+            while (rst.next()){
+                resultado.add(new Libro(rst.getInt(1), rst.getString(2), rst.getString(3)));
+            }
+        }catch (SQLException sqle) {
+            System.out.println(sqle.getMessage());
+        }
+        return resultado;
     }
 }
